@@ -30,7 +30,7 @@ class Address extends Resource
         return self::_create(get_class(), $params, $apiKey);
     }
 
-    public static function create_and_verify($params = null, $apiKey = null)
+    public static function create_and_verify($params = null, $apiKey = null, $carrier=null)
     {
         $class = get_class();
         if (!isset($params['address']) || !is_array($params['address'])) {
@@ -41,7 +41,8 @@ class Address extends Resource
 
         $requestor = new Requestor($apiKey);
         $url = self::classUrl($class);
-        list($response, $apiKey) = $requestor->request('post', $url.'/create_and_verify', $params);
+        $carrier = $carrier ? "?carrier={$carrier}" : '';
+        list($response, $apiKey) = $requestor->request('post', $url.'/create_and_verify'.$carrier, $params);
 
         if (isset($response['address'])) {
             $verified_address = Util::convertToEasyPostObject($response['address'], $apiKey);
@@ -57,10 +58,11 @@ class Address extends Resource
         }
     }
 
-    public function verify($params = null)
+    public function verify($params = null, $carrier=null)
     {
         $requestor = new Requestor($this->_apiKey);
-        $url = $this->instanceUrl() . '/verify';
+        $carrier = $carrier ? "?carrier={$carrier}" : '';
+        $url = $this->instanceUrl() . '/verify'.$carrier;
         list($response, $apiKey) = $requestor->request('get', $url, $params);
         if (isset($response['address'])) {
             $verified_address = Util::convertToEasyPostObject($response['address'], $apiKey);
